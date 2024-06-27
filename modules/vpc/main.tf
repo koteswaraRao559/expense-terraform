@@ -3,6 +3,7 @@ resource "aws_vpc" "main" {
   tags       = merge(var.tags, { Name = var.env})
 }
 
+# This subnet block need to nbe improvement in code dry concept
 resource "aws_subnet" "main" {
   count             = length(var.public_subnets)
   vpc_id            = aws_vpc.main.id
