@@ -115,6 +115,7 @@ resource "aws_internet_gateway" "igw" {
 
 #creating NAT gateway and attach it to public subnet
 # here we need one IP to reserve, that is elastic_ip
+# Associate NGW to 3 private subnet route tables--->route block in we,app,db route tables code
 resource "aws_eip" "ngw" {
   domain   = "vpc"
 }
@@ -122,4 +123,15 @@ resource "aws_eip" "ngw" {
 resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.ngw.id
   subnet_id     = aws_subnet.public.*.id[0]
+}
+
+# 8. create peering connection, here peer_owner_id is our account id
+# copy account id of aws and send it using variables
+# provide default vpc id also using variables
+
+resource "aws_vpc_peering_connection" "peer" {
+  peer_owner_id = var.account_id
+  peer_vpc_id   = var.default_vpc_id
+  vpc_id        = aws_vpc.main.id
+  auto_accept = true
 }
