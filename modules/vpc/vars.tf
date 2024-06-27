@@ -4,4 +4,4 @@ variable "tags" {}
 variable "public_subnets" {}
 variable "web_subnets" {}
 variable "app_subnets" {}
-variable "db_subnets" {}s
+variable "db_subnets" {}
