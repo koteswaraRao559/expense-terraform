@@ -20,6 +20,13 @@ resource "aws_subnet" "web" {
   availability_zone = var.azs[count.index]
 }
 
+resource "aws_subnet" "app" {
+  count             = length(var.app_subnets)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.app_subnets[count.index]
+  tags              = merge(var.tags, { Name = "app_subnet"})
+  availability_zone = var.azs[count.index]
+}
 
 
 resource "aws_subnet" "db" {
@@ -30,18 +37,16 @@ resource "aws_subnet" "db" {
   availability_zone = var.azs[count.index]
 }
 
-resource "aws_subnet" "app" {
-  count             = length(var.app_subnets)
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.app_subnets[count.index]
-  tags              = merge(var.tags, { Name = "app_subnet"})
-  availability_zone = var.azs[count.index]
-}
 
 # step 3. creating 4 route tables
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
   tags = merge(var.tags, { Name = "public"})
+
+  route {
+    cidr_block = "0.0.0.0/24"
+    gateway_id = aws_internet_gateway.igw.id
+  }
 }
 
 resource "aws_route_table" "web" {
@@ -49,15 +54,16 @@ resource "aws_route_table" "web" {
   tags = merge(var.tags, { Name = "web"})
 }
 
+resource "aws_route_table" "app" {
+  vpc_id = aws_vpc.main.id
+  tags = merge(var.tags, { Name = "app"})
+}
+
 resource "aws_route_table" "db" {
   vpc_id = aws_vpc.main.id
   tags   = merge(var.tags, { Name = "db" })
 }
 
-resource "aws_route_table" "app" {
-  vpc_id = aws_vpc.main.id
-  tags = merge(var.tags, { Name = "app"})
-}
 
 
 #step 4. Associating route tables with subnets
@@ -83,4 +89,11 @@ resource "aws_route_table_association" "app" {
   count = length(aws_subnet.app)
   subnet_id      = aws_subnet.app.*.id[count.index]
   route_table_id = aws_route_table.app.id
+}
+
+# creating internet_gate_way and attach it to public subnet
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main.id
+  tags   = merge(var.tags, { Name = "igw" })
 }
