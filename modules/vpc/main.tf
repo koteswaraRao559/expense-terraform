@@ -44,7 +44,7 @@ resource "aws_route_table" "public" {
   tags = merge(var.tags, { Name = "public"})
 
   route {
-    cidr_block = "0.0.0.0/24"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 }
@@ -52,16 +52,31 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "web" {
   vpc_id = aws_vpc.main.id
   tags = merge(var.tags, { Name = "web"})
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw.id
+  }
 }
 
 resource "aws_route_table" "app" {
   vpc_id = aws_vpc.main.id
   tags = merge(var.tags, { Name = "app"})
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw.id
+  }
 }
 
 resource "aws_route_table" "db" {
   vpc_id = aws_vpc.main.id
   tags   = merge(var.tags, { Name = "db" })
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.ngw.id
+  }
 }
 
 
@@ -92,8 +107,19 @@ resource "aws_route_table_association" "app" {
 }
 
 # creating internet_gate_way and attach it to public subnet
-
+# for attaching see public route table code--->the route block
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
   tags   = merge(var.tags, { Name = "igw" })
+}
+
+#creating NAT gateway and attach it to public subnet
+# here we need one IP to reserve, that is elastic_ip
+resource "aws_eip" "ngw" {
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "ngw" {
+  allocation_id = aws_eip.ngw.id
+  subnet_id     = aws_subnet.public.*.id[0]
 }
