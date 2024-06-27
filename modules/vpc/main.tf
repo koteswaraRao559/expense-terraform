@@ -61,15 +61,13 @@ resource "aws_route_table" "app" {
 
 
 #step 4. Associating route tables with subnets
-resource "aws_route_table_association" "public"
-{
+resource "aws_route_table_association" "public" {
     count = length(aws_subnet.public)
     subnet_id      = aws_subnet.public.*.id[count.index]
     route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "web"
-{
+resource "aws_route_table_association" "web" {
   count = length(aws_subnet.web)
   subnet_id      = aws_subnet.web.*.id[count.index]
   route_table_id = aws_route_table.web.id
