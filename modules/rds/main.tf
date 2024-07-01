@@ -45,6 +45,7 @@ resource "aws_db_instance" "main" {
   multi_az = true
   identifier = "${var.env}-mysql-rds"
   storage_type = "gp3"
+  tags =  merge(var.tags,{Name = "${var.env}-mysql-rds"})
   db_subnet_group_name = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.main.id]
 }
