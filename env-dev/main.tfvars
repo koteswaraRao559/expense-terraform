@@ -15,3 +15,8 @@ account_id = "637423496087"
 default_vpc_id = "vpc-0730c38cfa2b035db"
 default_route_table_id ="rtb-05347e0a0a5281e73"
 default_vpc_cidr = "172.31.0.0/16"
+
+rds_allocated_storage = 20
+rds_engine = "mysql"
+rds_engine_version = "5.7.44"
+rds_instance_class = "db.t3.micro"
