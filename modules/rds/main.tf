@@ -6,7 +6,7 @@ resource "aws_db_parameter_group" "main" {
 resource "aws_db_subnet_group" "main" {
   name   = "${var.env}-mysql-rds"
   subnet_ids = var.subnets
-  tags = merge(var.tags,{Name = "${var.env}-mysql-rds"})
+  tags = merge(var.tags, {Name = "${var.env}-mysql-rds"})
 }
 
 resource "aws_security_group" "main" {
@@ -28,7 +28,7 @@ resource "aws_security_group" "main" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = merge(var.tags,{Name = "${var.env}-mysql-rds"})
+  tags = merge(var.tags, {Name = "${var.env}-mysql-rds"})
 }
 
 
