@@ -30,7 +30,7 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_launch_template" "main" {
-  name_prefix   = "${var.env}-${var.component}"
+  name   = "${var.env}-${var.component}"
   image_id      = data.aws_ami.ami.image_id
   instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.main.id]
@@ -39,6 +39,9 @@ resource "aws_launch_template" "main" {
     role_name = var.component
     env = var.env
     } ))
+  iam_instance_profile {
+    name = aws_iam_instance_profile.main.name
+  }
 }
 
 resource "aws_autoscaling_group" "main" {
@@ -59,3 +62,55 @@ resource "aws_autoscaling_group" "main" {
   }
 }
 
+resource "aws_iam_role" "main" {
+  name = "${var.env}-${var.component}"
+  tags = merge(var.tags, {Name = "${var.env}-${var.component}"})
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "SSMReadAccess"
+
+    policy = jsonencode({
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "GetResource",
+          "Effect": "Allow",
+          "Action": [
+            "ssm:GetParameterHistory",
+            "ssm:GetParametersByPath",
+            "ssm:GetParameters",
+            "ssm:GetParameter"
+          ],
+          "Resource": "arn:aws:ssm:us-east-1:637423496087:parameter/${var.env}.${var.component}.password.*"
+        },
+        {
+          "Sid": "ListResource",
+          "Effect": "Allow",
+          "Action": "ssm:DescribeParameters",
+          "Resource": "*"
+        }
+      ]
+    })
+  }
+}
+
+resource "aws_iam_instance_profile" "main" {
+  name = "${var.env}-${var.component}"
+  role = aws_iam_role.main.name
+}
