@@ -41,4 +41,18 @@ module "backend" {
   basion_cidrs    =var.bastion_cidrs
 }
 
+module "frontend" {
+  source = "./modules/app"
+  app_port       = var.frontend["app_port"]
+  component      = "backend"
+  env            = var.env
+  instance_count = var.frontend["instance_count"]
+  instance_type  = var.frontend["instance_type"]
+  sg_cidrs       = var.web_subnets
+  subnets        = module.vpc.app_subnets
+  tags           = var.tags
+  vpc_id         = module.vpc.vpc_id
+  basion_cidrs    =var.bastion_cidrs
+}
+
 
