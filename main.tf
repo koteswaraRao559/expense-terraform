@@ -44,7 +44,7 @@ module "backend" {
 module "frontend" {
   source = "./modules/app"
   app_port       = var.frontend["app_port"]
-  component      = "backend"
+  component      = "frontend"
   env            = var.env
   instance_count = var.frontend["instance_count"]
   instance_type  = var.frontend["instance_type"]
