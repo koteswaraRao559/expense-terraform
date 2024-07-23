@@ -109,6 +109,21 @@ resource "aws_iam_role" "main" {
           "Effect": "Allow",
           "Action": "ssm:DescribeParameters",
           "Resource": "*"
+        },
+        {
+          "Sid": "S3UploadsForPrometheusAlerts",
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:ListBucket",
+            "s3:PutObject",
+            "s3:DeleteObjectVersion",
+            "s3:DeleteObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::d76-prometheus-alert-rules/*",
+            "arn:aws:s3:::d76-prometheus-alert-rules"
+          ]
         }
       ]
     })
